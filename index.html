@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>鳥園帳本</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4EDE1;
+  --card:#FFFBF3;
+  --card-soft:#FBF4E6;
+  --ink:#3B2E22;
+  --ink-soft:#8A7660;
+  --line:#E6D9C3;
+  --brown:#8C5E3C;
+  --brown-deep:#5C4128;
+  --green:#5E7E52;
+  --green-soft:#EAF0E4;
+  --rust:#B05038;
+  --rust-soft:#F6E7E1;
+  --gold:#C99A4B;
+  --gold-soft:#F5EBD6;
+  --radius:14px;
+  --serif:"Noto Serif TC","Songti TC",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--sans);background:var(--bg);color:var(--ink);
+  min-height:100vh;font-size:15px;line-height:1.55;
+}
+.app{max-width:560px;margin:0 auto;padding:0 16px calc(86px + env(safe-area-inset-bottom));}
+/* ---------- 頂欄 ---------- */
+.top{
+  max-width:560px;margin:0 auto;padding:14px 16px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.brand{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-weight:700;font-size:19px;color:var(--brown-deep)}
+.brand svg{display:block}
+.top-right{display:flex;align-items:center;gap:8px}
+.mode-badge{font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--ink-soft);background:var(--card)}
+.mode-badge.live{color:#fff;background:var(--green);border-color:var(--green)}
+.icon-btn{
+  width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card);color:var(--brown-deep);display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.icon-btn:active{transform:scale(.96)}
+/* ---------- 卡片與標題 ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.card.soft{background:var(--card-soft)}
+.sec-title{font-family:var(--serif);font-weight:700;font-size:16px;color:var(--brown-deep);margin:18px 0 10px;display:flex;align-items:center;justify-content:space-between}
+.sec-title small{font-family:var(--sans);font-weight:400;font-size:12px;color:var(--ink-soft)}
+/* ---------- 總覽 hero ---------- */
+.hero{position:relative;overflow:hidden;background:linear-gradient(160deg,#FFFBF3 0%,#F7EDDA 100%)}
+.hero .label{font-size:12px;letter-spacing:.18em;color:var(--ink-soft)}
+.hero .net{font-family:var(--serif);font-size:42px;font-weight:700;line-height:1.15;margin:2px 0 10px}
+.net.pos{color:var(--green)}.net.neg{color:var(--rust)}.net.zero{color:var(--ink-soft)}
+.hero-row{display:flex;gap:10px}
+.hero-pill{flex:1;border-radius:10px;padding:8px 12px;font-size:13px}
+.hero-pill b{display:block;font-size:16px;font-family:var(--serif)}
+.hero-pill.in{background:var(--green-soft);color:var(--green)}
+.hero-pill.out{background:var(--rust-soft);color:var(--rust)}
+.hero-bird{position:absolute;right:-6px;top:-10px;opacity:.16}
+/* ---------- 統計列 ---------- */
+.stat-row{display:flex;gap:10px;flex-wrap:wrap}
+.stat-chip{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--ink-soft);white-space:nowrap}
+#ov-share{display:flex;flex-wrap:wrap;gap:8px}
+.stat-chip b{color:var(--brown-deep);font-family:var(--serif);font-size:16px;margin-left:4px}
+/* ---------- 表單 ---------- */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:6px}
+input[type=text],input[type=number],input[type=date],input[type=month],input[type=url],select,textarea{
+  width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;
+  background:#fff;color:var(--ink);font-size:15px;font-family:var(--sans);outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--brown);box-shadow:0 0 0 3px rgba(140,94,60,.12)}
+.seg{display:flex;background:var(--card-soft);border:1px solid var(--line);border-radius:11px;padding:3px;gap:3px}
+.seg button{
+  flex:1;padding:9px 0;border:none;border-radius:8px;background:transparent;
+  font-size:14px;color:var(--ink-soft);cursor:pointer;font-family:var(--sans);
+}
+.seg button.on-expense{background:var(--rust);color:#fff}
+.seg button.on-income{background:var(--green);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:#fff;
+  font-size:13px;color:var(--ink);cursor:pointer;
+}
+.chip.on{background:var(--brown);border-color:var(--brown);color:#fff}
+.chip.filter.on{background:var(--brown-deep);border-color:var(--brown-deep)}
+.row2{display:flex;gap:10px}.row2>.field{flex:1}
+.hint{font-size:12px;color:var(--ink-soft);margin-top:5px}
+.hint.warn{color:var(--rust)}
+.btn{
+  width:100%;padding:13px 0;border:none;border-radius:12px;background:var(--brown);
+  color:#fff;font-size:16px;font-family:var(--serif);font-weight:600;cursor:pointer;letter-spacing:.08em;
+}
+.btn:disabled{opacity:.5}
+.btn.ghost{background:transparent;border:1px dashed var(--brown);color:var(--brown);font-family:var(--sans);font-weight:400;font-size:14px}
+.btn:active{transform:scale(.99)}
+/* ---------- 記錄列表 ---------- */
+.rec{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--line)}
+.rec:last-child{border-bottom:none}
+.rec-dot{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rec-dot.in{background:var(--green-soft);color:var(--green)}
+.rec-dot.out{background:var(--rust-soft);color:var(--rust)}
+.rec-dot.adj{background:var(--gold-soft);color:var(--gold)}
+.rec-main{flex:1;min-width:0}
+.rec-cat{font-size:14.5px;font-weight:600}
+.rec-meta{font-size:12px;color:var(--ink-soft);display:flex;gap:6px;flex-wrap:wrap;margin-top:1px}
+.tag{padding:1px 7px;border-radius:99px;font-size:11px;border:1px solid var(--line);color:var(--ink-soft);background:#fff}
+.tag.owner{border-color:var(--gold);color:#9a7327;background:var(--gold-soft)}
+.rec-right{text-align:right}
+.rec-amt{font-family:var(--serif);font-weight:700;font-size:15.5px}
+.rec-amt.in{color:var(--green)}.rec-amt.out{color:var(--rust)}.rec-amt.adj{color:var(--gold)}
+.rec-date{font-size:11px;color:var(--ink-soft)}
+.rec-del{border:none;background:none;color:var(--ink-soft);padding:6px;cursor:pointer;opacity:.6}
+.empty{padding:30px 0;text-align:center;color:var(--ink-soft);font-size:13.5px}
+/* ---------- 庫存 ---------- */
+.stock-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stock-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;position:relative}
+.stock-card .name{font-size:13.5px;color:var(--ink-soft)}
+.stock-card .qty{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--brown-deep);line-height:1.2}
+.stock-card .qty small{font-size:13px;font-weight:400;color:var(--ink-soft);font-family:var(--sans)}
+.stock-card .adj-btn{
+  font-size:12px;padding:4px 10px;border-radius:99px;
+  border:1px solid var(--line);background:#fff;color:var(--brown);cursor:pointer;
+}
+.sc-btns{display:flex;gap:6px;margin-top:9px}
+/* ---------- 鳥籍名冊 ---------- */
+.pair-card{padding:12px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.pair-card:last-child{border-bottom:none}
+.pair-head{display:flex;align-items:center;gap:8px}
+.pair-name{font-size:14.5px;font-weight:600;flex:1}
+.status-tag{padding:2px 9px;border-radius:99px;font-size:11px;background:var(--gold-soft);color:#9a7327;border:1px solid #E8D5AC;white-space:nowrap}
+.status-tag.calm{background:var(--card-soft);color:var(--ink-soft);border-color:var(--line)}
+.status-tag.breed{background:var(--green-soft);color:var(--green);border-color:#CBDCC2}
+.status-tag.gone{background:#EEE9E0;color:#A39681;border-color:var(--line)}
+.pair-meta{font-size:12px;color:var(--ink-soft);margin-top:3px;line-height:1.5}
+.ev-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:flex-start;font-size:13px}
+.ev-row:last-child{border-bottom:none}
+.ev-date{color:var(--ink-soft);font-size:12px;white-space:nowrap;padding-top:1px}
+.ev-main{flex:1;min-width:0}
+.ev-type{font-weight:600}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:13px;margin-bottom:6px}
+.detail-grid b{font-weight:600}
+.detail-grid .lbl{color:var(--ink-soft)}
+.check-row{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);margin-bottom:14px}
+.check-row input{width:auto;accent-color:var(--brown)}
+/* ---------- 分潤 ---------- */
+.split-bar{display:flex;height:16px;border-radius:99px;overflow:hidden;margin:12px 0 8px}
+.split-bar div{height:100%}
+.sb-a{background:var(--gold)}.sb-b{background:var(--brown)}.sb-c{background:var(--green)}.sb-d{background:#7B9EA8}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}
+.share-row{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line)}
+.share-row:last-child{border-bottom:none}
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:700;font-size:17px;color:#fff;flex-shrink:0}
+.av-a{background:var(--gold)}.av-b{background:var(--brown)}.av-c{background:var(--green)}.av-d{background:#7B9EA8}
+.share-main{flex:1}
+.share-name{font-weight:600;font-size:14.5px}
+.share-desc{font-size:12px;color:var(--ink-soft)}
+.share-amt{font-family:var(--serif);font-weight:700;font-size:17px;color:var(--brown-deep)}
+.note-box{background:var(--gold-soft);border:1px solid #E8D5AC;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#7a5c1f;margin-top:10px}
+/* ---------- 開辦成本 ---------- */
+.su-group{font-size:13px;color:var(--brown-deep);margin:14px 0 4px;font-weight:600}
+.su-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.su-row:last-child{border-bottom:none}
+.su-label{flex:1;font-size:13.5px;min-width:0}
+.su-label small{display:block;color:var(--ink-soft);font-size:11.5px;line-height:1.4}
+.su-row input{width:118px;padding:8px 10px;flex-shrink:0}
+.su-done{font-family:var(--serif);font-weight:700;color:var(--brown-deep);font-size:14px;flex-shrink:0}
+/* ---------- 底部導覽 ---------- */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:rgba(255,251,243,.94);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tabbar-inner{max-width:560px;margin:0 auto;display:flex}
+.tab{
+  flex:1;padding:9px 0 7px;border:none;background:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--ink-soft);font-size:10.5px;font-family:var(--sans);
+}
+.tab svg{display:block}
+.tab.on{color:var(--brown-deep);font-weight:600}
+/* ---------- 彈窗 / 提示 ---------- */
+.modal-mask{
+  position:fixed;inset:0;background:rgba(59,46,34,.45);z-index:90;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-mask.show{display:flex}
+.modal{
+  background:var(--card);width:100%;max-width:560px;border-radius:18px 18px 0 0;
+  padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-height:86vh;overflow-y:auto;
+}
+.modal h3{font-family:var(--serif);color:var(--brown-deep);font-size:17px;margin-bottom:14px}
+.modal .close-row{display:flex;justify-content:flex-end;margin-top:4px}
+.steps{font-size:13px;color:var(--ink-soft);padding-left:18px;display:grid;gap:5px}
+.toast{
+  position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);
+  background:var(--brown-deep);color:#fff;padding:10px 18px;border-radius:99px;
+  font-size:13.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:86vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--rust)}
+.loading{
+  position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;
+  background:rgba(244,237,225,.6);backdrop-filter:blur(2px);
+}
+.loading.show{display:flex}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--brown);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.page{display:none}.page.on{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--brown);outline-offset:1px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8C5E3C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M16 7c0-2.2-1.8-4-4-4S8 4.8 8 7c0 .5.1 1 .3 1.5L3 14l3 .5L6.5 18l5.5-5.3c3.8-.2 7-2.5 9-6.2l-3.5.5L16 7z"/>
+      <circle cx="13.5" cy="6.5" r="0.5" fill="#8C5E3C"/>
+    </svg>
+    鳥園帳本
+  </div>
+  <div class="top-right">
+    <span class="mode-badge" id="modeBadge">示範模式</span>
+    <button class="icon-btn" id="btnSettings" aria-label="設定">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="app">
+
+  <!-- 總覽 -->
+  <section class="page on" id="page-overview">
+    <div class="card hero">
+      <svg class="hero-bird" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#8C5E3C" stroke-width="1.2"><path d="M16 7c0-2.2-1.8-4-4-4S8 4.8 8 7c0 .5.1 1 .3 1.5L3 14l3 .5L6.5 18l5.5-5.3c3.8-.2 7-2.5 9-6.2l-3.5.5L16 7z"/></svg>
+      <div class="label" id="ov-month-label">本月淨利</div>
+      <div class="net zero" id="ov-net">NT$ 0</div>
+      <div class="hero-row">
+        <div class="hero-pill in">收入<b id="ov-income">NT$ 0</b></div>
+        <div class="hero-pill out">支出<b id="ov-expense">NT$ 0</b></div>
+      </div>
+    </div>
+
+    <div class="sec-title">庫存概況</div>
+    <div class="stat-row" id="ov-stock"></div>
+
+    <div class="sec-title">本月分潤速覽 <small id="ov-share-note"></small></div>
+    <div class="card" id="ov-share"></div>
+
+    <div class="sec-title">開辦成本 <small>記在開辦月,不影響每月分潤</small></div>
+    <div class="card" id="ov-startup"></div>
+
+    <div class="sec-title">最近紀錄</div>
+    <div class="card" id="ov-recent"></div>
+  </section>
+
+  <!-- 記帳 -->
+  <section class="page" id="page-entry">
+    <div class="sec-title">新增一筆</div>
+    <div class="card">
+      <div class="field">
+        <div class="seg" role="tablist">
+          <button id="seg-expense" class="on-expense" type="button">支出</button>
+          <button id="seg-income" type="button">收入</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>分類</label>
+        <div class="chips" id="f-cats"></div>
+      </div>
+      <div id="bird-block" style="display:none">
+        <div class="row2">
+          <div class="field">
+            <label>鳥種</label>
+            <select id="f-species"></select>
+          </div>
+          <div class="field">
+            <label>數量(隻)</label>
+            <input type="number" id="f-qty" min="1" step="1" inputmode="numeric" placeholder="1">
+          </div>
+        </div>
+        <div class="hint" id="stock-hint" style="margin:-6px 0 12px"></div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>金額(NT$)</label>
+          <input type="number" id="f-amount" min="1" step="1" inputmode="numeric" placeholder="0">
+        </div>
+        <div class="field">
+          <label>日期</label>
+          <input type="date" id="f-date">
+        </div>
+      </div>
+      <div class="field" id="owner-field">
+        <label>經手人(選填,僅供記錄,不影響分潤)</label>
+        <select id="f-owner">
+          <option value="">無</option>
+          <option value="C">Ryan</option>
+          <option value="D">Jeffery</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>備註(選填)</label>
+        <input type="text" id="f-note" maxlength="60" placeholder="例:六月飼料兩包">
+      </div>
+      <button class="btn" id="btn-save">記一筆</button>
+    </div>
+  </section>
+
+  <!-- 記錄 -->
+  <section class="page" id="page-records">
+    <div class="sec-title">收支記錄</div>
+    <div class="card soft" style="padding:12px">
+      <div class="row2" style="align-items:center">
+        <div class="field" style="margin:0"><input type="month" id="r-month"></div>
+      </div>
+      <div class="chips" style="margin-top:10px">
+        <button class="chip filter on" data-f="all">全部</button>
+        <button class="chip filter" data-f="income">收入</button>
+        <button class="chip filter" data-f="expense">支出</button>
+        <button class="chip filter" data-f="adjust">庫存調整</button>
+      </div>
+    </div>
+    <div class="stat-row" id="r-summary" style="margin-bottom:12px"></div>
+    <div class="card" id="r-list"></div>
+  </section>
+
+  <!-- 庫存 -->
+  <section class="page" id="page-stock">
+    <div class="sec-title">鳥種庫存 <small id="s-total"></small></div>
+    <div class="stock-grid" id="s-grid"></div>
+    <div style="height:12px"></div>
+    <button class="btn ghost" id="btn-add-species">＋ 新增鳥種</button>
+    <p class="hint" style="margin-top:10px">買鳥、賣鳥會自動增減庫存;這裡的「調整」用於盤點、死亡、贈送等情況,每次調整都會留下紀錄。</p>
+  </section>
+
+  <!-- 分潤 -->
+  <section class="page" id="page-share">
+    <div class="sec-title">股東分潤</div>
+    <div class="card soft" style="padding:12px">
+      <input type="month" id="sh-month">
+    </div>
+    <div class="stat-row" id="sh-summary" style="margin-bottom:12px"></div>
+    <div id="sh-body"></div>
+    <p class="hint" style="margin-top:10px">規則:以「當月淨利 = 收入 − 支出」為基準。A 固定 10%、B 固定 20%,剩餘 70% 由 Ryan、Jeffery 依「累計投入金額」(開辦成本,含鳥與設備)的比例分配。之後若有增資,記一筆「開辦成本」即可自動更新比例。淨利為零或虧損時不分潤。金額取整數,尾差由 Jeffery 吸收,確保四人合計等於淨利。</p>
+  </section>
+
+</main>
+
+<!-- 底部導覽 -->
+<nav class="tabbar">
+  <div class="tabbar-inner">
+    <button class="tab on" data-page="overview">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>
+      總覽
+    </button>
+    <button class="tab" data-page="entry">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      記帳
+    </button>
+    <button class="tab" data-page="records">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6"/></svg>
+      記錄
+    </button>
+    <button class="tab" data-page="stock">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7c0-2.2-1.8-4-4-4S8 4.8 8 7c0 .5.1 1 .3 1.5L3 14l3 .5L6.5 18l5.5-5.3c3.8-.2 7-2.5 9-6.2l-3.5.5L16 7z"/></svg>
+      庫存
+    </button>
+    <button class="tab" data-page="share">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12A9 9 0 1 1 12 3v9z"/><path d="M21 12a9 9 0 0 0-9-9v9z" fill="currentColor" stroke="none" opacity=".35"/></svg>
+      分潤
+    </button>
+  </div>
+</nav>
+
+<!-- 設定彈窗 -->
+<div class="modal-mask" id="settingsModal">
+  <div class="modal">
+    <h3>連線設定</h3>
+    <div class="field">
+      <label>Google Apps Script 網址(部署後的 /exec 網址)</label>
+      <input type="url" id="set-url" placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <button class="btn" id="btn-save-url">儲存並重新連線</button>
+    <p class="hint" id="set-status" style="margin-top:10px"></p>
+    <div class="sec-title" style="margin-top:16px">設定步驟</div>
+    <ol class="steps">
+      <li>建立一份新的 Google 試算表</li>
+      <li>「擴充功能 → Apps Script」,貼上附的 Code.gs 內容並儲存</li>
+      <li>在編輯器裡執行一次 <b>setup</b> 函式(會自動建表與初始庫存)</li>
+      <li>「部署 → 新增部署 → 網頁應用程式」,存取權選「任何人」</li>
+      <li>複製產生的網址貼到上方欄位</li>
+    </ol>
+    <p class="hint" style="margin-top:10px">尚未設定時為「示範模式」:資料只存在目前畫面,重新整理就會消失,適合先試用介面。</p>
+    <div class="close-row"><button class="chip" id="btn-close-settings">關閉</button></div>
+  </div>
+</div>
+
+<!-- 開辦成本彈窗 -->
+<div class="modal-mask" id="startupModal">
+  <div class="modal">
+    <h3>開辦成本</h3>
+    <p class="hint" style="margin-bottom:12px">每一項的說明和金額都可以編輯、刪除,也能隨時新增(之後增資也記在這裡)。金額不確定先留空,填了才會計入投入比例。這裡只記錢、不動庫存。</p>
+    <div class="field">
+      <label>開辦月(新項目會記在這個月)</label>
+      <input type="month" id="su-month">
+    </div>
+    <div id="su-list"></div>
+    <div style="height:10px"></div>
+    <button class="btn ghost" id="btn-su-seed">帶入預設清單(鳥與籠子共 9 項)</button>
+    <div class="close-row"><button class="chip" id="btn-close-startup">關閉</button></div>
+  </div>
+</div>
+
+<!-- 鳥籍名冊彈窗 -->
+<div class="modal-mask" id="regModal">
+  <div class="modal">
+    <h3 id="reg-title">名冊</h3>
+    <p class="hint" id="reg-hint" style="margin-bottom:10px"></p>
+    <div id="reg-list"></div>
+    <div style="height:10px"></div>
+    <button class="btn ghost" id="btn-add-pair">＋ 新增配對／單鳥</button>
+    <div class="close-row"><button class="chip" id="btn-close-reg">關閉</button></div>
+  </div>
+</div>
+
+<!-- 配對資料表單 -->
+<div class="modal-mask" id="pairModal" style="z-index:92">
+  <div class="modal">
+    <h3 id="pair-form-title">新增配對</h3>
+    <div class="row2">
+      <div class="field"><label>名稱／編號</label><input type="text" id="pf-name" maxlength="20" placeholder="例:金頭 1 號對"></div>
+      <div class="field"><label>隻數</label><input type="number" id="pf-qty" min="1" step="1" inputmode="numeric" value="2"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>公鳥腳環(選填)</label><input type="text" id="pf-mring" maxlength="20"></div>
+      <div class="field"><label>公鳥出生年(選填)</label><input type="number" id="pf-mbirth" min="1990" max="2100" inputmode="numeric" placeholder="例:2023"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>母鳥腳環(選填)</label><input type="text" id="pf-fring" maxlength="20"></div>
+      <div class="field"><label>母鳥出生年(選填)</label><input type="number" id="pf-fbirth" min="1990" max="2100" inputmode="numeric" placeholder="例:2024"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>狀態</label>
+        <select id="pf-status">
+          <option>配對中</option><option>孵蛋中</option><option>育雛中</option>
+          <option>休養</option><option>單隻</option><option>幼鳥</option>
+          <option>已售出</option><option>死亡</option>
+        </select>
+      </div>
+      <div class="field"><label>備註(選填)</label><input type="text" id="pf-note" maxlength="60"></div>
+    </div>
+    <button class="btn" id="btn-pair-save">儲存</button>
+    <div class="close-row"><button class="chip" id="btn-close-pair">取消</button></div>
+  </div>
+</div>
+
+<!-- 配對詳情彈窗 -->
+<div class="modal-mask" id="pairDetailModal" style="z-index:91">
+  <div class="modal">
+    <h3 id="pd-title"></h3>
+    <div class="card soft" id="pd-info" style="margin-bottom:12px"></div>
+    <div class="sec-title" style="margin-top:0">繁殖／健康紀錄</div>
+    <div class="card" id="pd-events" style="max-height:200px;overflow-y:auto"></div>
+    <div class="card soft">
+      <div class="row2">
+        <div class="field"><label>類型</label>
+          <select id="ev-type"><option>產蛋</option><option>出殼</option><option>健康</option><option>死亡</option><option>其他</option></select>
+        </div>
+        <div class="field"><label>數量(選填)</label><input type="number" id="ev-qty" min="1" step="1" inputmode="numeric"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>日期</label><input type="date" id="ev-date"></div>
+        <div class="field"><label>備註(選填)</label><input type="text" id="ev-note" maxlength="60"></div>
+      </div>
+      <div class="check-row" id="ev-sync-row" style="display:none">
+        <input type="checkbox" id="ev-sync" checked><label for="ev-sync" id="ev-sync-label" style="margin:0;font-size:13px;color:var(--ink)"></label>
+      </div>
+      <button class="btn" id="btn-ev-save">新增紀錄</button>
+    </div>
+    <div class="close-row" style="gap:8px;display:flex;justify-content:space-between">
+      <button class="chip" id="btn-pair-del" style="color:var(--rust);border-color:var(--rust)">刪除這組</button>
+      <span><button class="chip" id="btn-pair-edit">編輯資料</button>
+      <button class="chip" id="btn-close-pd">關閉</button></span>
+    </div>
+  </div>
+</div>
+
+<!-- 庫存調整彈窗 -->
+<div class="modal-mask" id="adjustModal">
+  <div class="modal">
+    <h3 id="adj-title">調整庫存</h3>
+    <div class="row2">
+      <div class="field">
+        <label>方向</label>
+        <select id="adj-dir"><option value="1">增加(＋)</option><option value="-1">減少(−)</option></select>
+      </div>
+      <div class="field">
+        <label>數量(隻)</label>
+        <input type="number" id="adj-qty" min="1" step="1" inputmode="numeric" placeholder="1">
+      </div>
+    </div>
+    <div class="field">
+      <label>日期</label>
+      <input type="date" id="adj-date">
+    </div>
+    <div class="field">
+      <label>原因(必填,例:盤點短少、死亡、自家留用)</label>
+      <input type="text" id="adj-note" maxlength="60">
+    </div>
+    <button class="btn" id="btn-adj-save">確認調整</button>
+    <div class="close-row"><button class="chip" id="btn-close-adjust">取消</button></div>
+  </div>
+</div>
+
+<!-- 新增鳥種彈窗 -->
+<div class="modal-mask" id="speciesModal">
+  <div class="modal">
+    <h3>新增鳥種</h3>
+    <div class="row2">
+      <div class="field">
+        <label>鳥種名稱</label>
+        <input type="text" id="sp-name" maxlength="20" placeholder="例:太平洋鸚鵡">
+      </div>
+      <div class="field">
+        <label>目前數量</label>
+        <input type="number" id="sp-qty" min="0" step="1" inputmode="numeric" value="0">
+      </div>
+    </div>
+    <button class="btn" id="btn-sp-save">新增</button>
+    <div class="close-row"><button class="chip" id="btn-close-species">取消</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="loading" id="loading"><div class="spinner"></div></div>
+<script>
+/* ================= 基本工具 ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const fmt = n => 'NT$ ' + Math.round(n).toLocaleString('zh-Hant');
+const todayStr = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const thisMonth = () => todayStr().slice(0,7);
+const prevMonth = () => { const d=new Date(); d.setDate(1); d.setMonth(d.getMonth()-1); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); };
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+function toast(msg, err){ const t=$('#toast'); t.textContent=msg; t.className='toast show'+(err?' err':''); clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),2600); }
+function loading(on){ $('#loading').classList.toggle('show', !!on); }
+
+const EXPENSE_CATS = ['飼料','房租','水電','日常消耗品','買鳥','行銷','開辦成本','其他'];
+const INCOME_CATS  = ['賣鳥','其他收入'];
+const OWNER_DEFAULT = {'飼料':'C','房租':'C','水電':'C','日常消耗品':'C','買鳥':'D'};
+
+// 開辦成本預設範本(只在「帶入預設清單」時使用,帶入後即為可自由編輯的資料)
+const DEFAULT_STARTUP_ITEMS = [
+  {owner:'D', label:'金頭凱克 8對＋1公(17隻,1母遭打死)'},
+  {owner:'D', label:'黃和尚 7對(14隻)'},
+  {owner:'D', label:'藍化小太陽 1對(2隻)'},
+  {owner:'D', label:'香吉士 8對(16隻)'},
+  {owner:'D', label:'大不銹鋼籠 ×24'},
+  {owner:'D', label:'小不銹鋼籠 ×8'},
+  {owner:'C', label:'黃和尚 2對(4隻)'},
+  {owner:'C', label:'香吉士 3對(6隻)'},
+  {owner:'C', label:'藍化小太陽 1對(2隻)'}
+];
+const SHAREHOLDERS = {
+  A:{name:'股東 A',short:'A',letter:'A',desc:'日常打掃.固定 10%'},
+  B:{name:'股東 B',short:'B',letter:'B',desc:'行銷.固定 20%'},
+  C:{name:'Ryan',short:'Ryan',letter:'R',desc:''},
+  D:{name:'Jeffery',short:'Jeffery',letter:'J',desc:''}
+};
+const ownerName = k => (SHAREHOLDERS[k] ? SHAREHOLDERS[k].short : k);
+
+/* ================= 狀態 ================= */
+const state = {
+  url: lsGet('birdapp_url') || '',
+  mode: 'demo',            // demo | live | error
+  records: [],
+  species: [],             // [{name, initialQty}]
+  pairs: [],               // 鳥籍名冊
+  events: [],              // 繁殖/健康紀錄
+  entryType: 'expense',
+  entryCat: '飼料',
+  recFilter: 'all'
+};
+
+/* ================= 核心邏輯(與後端一致) ================= */
+// 庫存一律由「初始數 + 全部紀錄」推算,單一資料來源,刪除紀錄自動回沖
+function computeStock(species, records){
+  const map = {};
+  species.forEach(s => map[s.name] = Number(s.initialQty)||0);
+  records.forEach(r => {
+    if(!r.species) return;
+    if(!(r.species in map)) map[r.species] = 0;
+    if(r.type==='expense' && r.category==='買鳥') map[r.species] += r.qty;
+    else if(r.type==='income' && r.category==='賣鳥') map[r.species] -= r.qty;
+    else if(r.type==='adjust') map[r.species] += r.qty; // qty 帶正負號
+  });
+  return map;
+}
+
+// 投入資本:累計所有「開辦成本」紀錄(之後增資也記開辦成本即可)
+function computeCapital(records){
+  let c=0, d=0;
+  records.forEach(r=>{
+    if(r.type==='expense' && r.category==='開辦成本'){
+      if(r.owner==='C') c += r.amount;
+      if(r.owner==='D') d += r.amount;
+    }
+  });
+  return {c, d};
+}
+
+// 分潤:基準為當月淨利;A 10%、B 20%,剩餘 70% 由 Ryan/Jeffery 依「投入金額比例」分;
+// 淨利 ≤ 0 不分潤;兩人投入皆未填時 70% 先平分;尾差由 Jeffery 吸收。
+function computeShare(records, month){
+  let income=0, expense=0;
+  records.forEach(r => {
+    if(!r.date.startsWith(month)) return;
+    if(r.type==='income') income += r.amount;
+    else if(r.type==='expense') expense += r.amount;
+  });
+  const cap = computeCapital(records);
+  const net = income - expense;
+  const base = {income, expense, net, capC:cap.c, capD:cap.d};
+  if(net <= 0) return Object.assign(base, {distributable:false});
+  const a = Math.round(net*0.10);
+  const b = Math.round(net*0.20);
+  const pool = net - a - b;                 // 實際剩餘,避免 0.7×淨利 的四捨五入誤差
+  const fallback = (cap.c + cap.d) === 0;
+  const cRatio = fallback ? 0.5 : cap.c/(cap.c+cap.d);
+  const c = Math.round(pool * cRatio);
+  const d = pool - c;                       // Jeffery 吸收尾差,保證 a+b+c+d = net
+  return Object.assign(base, {distributable:true, a, b, c, d, pool, cRatio, dRatio:1-cRatio, fallback});
+}
+
+// 模擬刪除某筆紀錄後庫存是否會變負(例:買進的鳥已賣出,就不能刪那筆買入)
+function deletionMakesNegative(id){
+  const rest = state.records.filter(r => r.id !== id);
+  const stock = computeStock(state.species, rest);
+  return Object.keys(stock).some(k => stock[k] < 0);
+}
+
+/* ================= 資料層:示範模式 / Google Sheets ================= */
+const demo = {
+  species: [
+    {name:'金頭凱克', initialQty:16},
+    {name:'黃和尚', initialQty:18},
+    {name:'藍化小太陽', initialQty:4},
+    {name:'香吉士', initialQty:22}
+  ],
+  records: [],
+  pairs: [],
+  events: []
+};
+(function seedDemo(){
+  const m = thisMonth(), pm = prevMonth();
+  const mk = (date,type,category,amount,owner,species,qty,note) =>
+    ({id:'demo-'+Math.random().toString(36).slice(2), date, type, category, amount, note, owner, species:species||'', qty:qty||0, createdAt:new Date().toISOString()});
+  demo.records = [
+    mk(pm+'-01','expense','開辦成本',48000,'D','',0,'金頭凱克 8對＋1公(17隻,1母遭打死)'),
+    mk(pm+'-01','expense','開辦成本',0,'D','',0,'黃和尚 7對(14隻)'),
+    mk(pm+'-01','expense','開辦成本',0,'D','',0,'藍化小太陽 1對(2隻)'),
+    mk(pm+'-01','expense','開辦成本',0,'D','',0,'香吉士 8對(16隻)'),
+    mk(pm+'-01','expense','開辦成本',0,'D','',0,'大不銹鋼籠 ×24'),
+    mk(pm+'-01','expense','開辦成本',0,'D','',0,'小不銹鋼籠 ×8'),
+    mk(pm+'-01','expense','開辦成本',12000,'C','',0,'黃和尚 2對(4隻)'),
+    mk(pm+'-01','expense','開辦成本',0,'C','',0,'香吉士 3對(6隻)'),
+    mk(pm+'-01','expense','開辦成本',0,'C','',0,'藍化小太陽 1對(2隻)'),
+    mk(m+'-02','expense','房租',10000,'C','',0,'示範資料'),
+    mk(m+'-03','expense','飼料',3400,'C','',0,'示範資料'),
+    mk(m+'-05','expense','買鳥',6000,'D','藍化小太陽',2,'示範資料'),
+    mk(m+'-08','income','賣鳥',9000,'','香吉士',3,'示範資料'),
+    mk(m+'-10','income','賣鳥',15000,'','金頭凱克',2,'示範資料')
+  ];
+  demo.pairs = [
+    {id:'demo-p1', species:'金頭凱克', name:'金頭 1 號對', qty:2, maleRing:'GK-01', femaleRing:'GK-02', maleBirth:2022, femaleBirth:2023, status:'孵蛋中', note:'示範資料', createdAt:new Date().toISOString()},
+    {id:'demo-p2', species:'藍化小太陽', name:'藍化 1 號對', qty:2, maleRing:'BL-01', femaleRing:'BL-02', maleBirth:2021, femaleBirth:2021, status:'育雛中', note:'示範資料', createdAt:new Date().toISOString()}
+  ];
+  demo.events = [
+    {id:'demo-e1', pairId:'demo-p2', date:m+'-01', type:'產蛋', qty:4, note:'示範資料', createdAt:new Date().toISOString()},
+    {id:'demo-e2', pairId:'demo-p2', date:m+'-11', type:'出殼', qty:3, note:'示範資料', createdAt:new Date().toISOString()}
+  ];
+})();
+
+const api = {
+  async getAll(){
+    if(state.mode!=='live') return {ok:true, records:demo.records.slice(), species:demo.species.slice(), pairs:demo.pairs.slice(), events:demo.events.slice()};
+    return remote({action:'getAll'});
+  },
+  async addRecord(rec){
+    if(state.mode!=='live'){
+      // 示範模式也做同樣驗證
+      const stock = computeStock(demo.species, demo.records);
+      if(rec.type==='income' && rec.category==='賣鳥' && (stock[rec.species]||0) < rec.qty)
+        return {ok:false, error:'庫存不足:'+rec.species+' 目前 '+(stock[rec.species]||0)+' 隻'};
+      if(rec.type==='adjust' && (stock[rec.species]||0) + rec.qty < 0)
+        return {ok:false, error:'調整後庫存不可為負'};
+      rec.id = 'demo-'+Math.random().toString(36).slice(2);
+      rec.createdAt = new Date().toISOString();
+      demo.records.push(rec);
+      return {ok:true, record:rec};
+    }
+    return remote({action:'addRecord', record:rec});
+  },
+  async deleteRecord(id){
+    if(state.mode!=='live'){
+      const rest = demo.records.filter(r=>r.id!==id);
+      const stock = computeStock(demo.species, rest);
+      if(Object.keys(stock).some(k=>stock[k]<0)) return {ok:false, error:'刪除後庫存會變成負數,請先處理相關的賣出紀錄'};
+      demo.records = rest;
+      return {ok:true};
+    }
+    return remote({action:'deleteRecord', id});
+  },
+  async updateRecord(rec){
+    if(state.mode!=='live'){
+      const i = demo.records.findIndex(r=>r.id===rec.id);
+      if(i<0) return {ok:false, error:'找不到這筆紀錄'};
+      if(demo.records[i].category!=='開辦成本') return {ok:false, error:'只有開辦成本項目可以編輯'};
+      demo.records[i].note = rec.note;
+      demo.records[i].amount = rec.amount;
+      return {ok:true};
+    }
+    return remote({action:'updateRecord', record:rec});
+  },
+  async addSpecies(name, initialQty){
+    if(state.mode!=='live'){
+      if(demo.species.some(s=>s.name===name)) return {ok:false, error:'這個鳥種已存在'};
+      demo.species.push({name, initialQty});
+      return {ok:true};
+    }
+    return remote({action:'addSpecies', name, initialQty});
+  },
+  async addPair(pair){
+    if(state.mode!=='live'){
+      pair.id='demo-'+Math.random().toString(36).slice(2);
+      pair.createdAt=new Date().toISOString();
+      demo.pairs.push(pair);
+      return {ok:true, pair};
+    }
+    return remote({action:'addPair', pair});
+  },
+  async updatePair(pair){
+    if(state.mode!=='live'){
+      const i = demo.pairs.findIndex(p=>p.id===pair.id);
+      if(i<0) return {ok:false, error:'找不到這組資料'};
+      demo.pairs[i] = Object.assign({}, demo.pairs[i], pair);
+      return {ok:true};
+    }
+    return remote({action:'updatePair', pair});
+  },
+  async deletePair(id){
+    if(state.mode!=='live'){
+      demo.pairs = demo.pairs.filter(p=>p.id!==id);
+      demo.events = demo.events.filter(e=>e.pairId!==id);
+      return {ok:true};
+    }
+    return remote({action:'deletePair', id});
+  },
+  async addEvent(ev){
+    if(state.mode!=='live'){
+      ev.id='demo-'+Math.random().toString(36).slice(2);
+      ev.createdAt=new Date().toISOString();
+      demo.events.push(ev);
+      return {ok:true, event:ev};
+    }
+    return remote({action:'addEvent', event:ev});
+  },
+  async deleteEvent(id){
+    if(state.mode!=='live'){
+      demo.events = demo.events.filter(e=>e.id!==id);
+      return {ok:true};
+    }
+    return remote({action:'deleteEvent', id});
+  }
+};
+
+async function remote(payload){
+  try{
+    const res = await fetch(state.url, {method:'POST', body: JSON.stringify(payload)});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return await res.json();
+  }catch(e){
+    return {ok:false, error:'連線失敗,請檢查網路或 Apps Script 網址('+e.message+')'};
+  }
+}
+
+async function reload(showLoad){
+  if(showLoad) loading(true);
+  const data = await api.getAll();
+  loading(false);
+  if(!data.ok){ toast(data.error||'讀取失敗', true); state.mode='error'; updateBadge(); return; }
+  state.records = (data.records||[]).sort((x,y)=> y.date===x.date ? (y.createdAt>x.createdAt?1:-1) : (y.date>x.date?1:-1));
+  state.species = data.species||[];
+  state.pairs = data.pairs||[];
+  state.events = data.events||[];
+  renderAll();
+}
+
+function updateBadge(){
+  const b = $('#modeBadge');
+  if(state.mode==='live'){ b.textContent='已連線'; b.className='mode-badge live'; }
+  else if(state.mode==='error'){ b.textContent='連線失敗'; b.className='mode-badge'; }
+  else { b.textContent='示範模式'; b.className='mode-badge'; }
+}
+
+/* ================= 畫面渲染 ================= */
+function renderAll(){ renderOverview(); renderEntry(); renderRecords(); renderStock(); renderShare(); updateBadge(); }
+
+function recIcon(r){
+  if(r.type==='adjust') return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 12h16M12 4v16" transform="rotate(45 12 12)"/></svg>';
+  if(r.type==='income') return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
+  return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
+}
+function esc(s){ return String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function recRow(r, withDelete){
+  const cls = r.type==='adjust' ? 'adj' : (r.type==='income' ? 'in' : 'out');
+  const amt = r.type==='adjust'
+    ? (r.qty>0?'＋':'−')+Math.abs(r.qty)+' 隻'
+    : (r.category==='開辦成本'&&r.amount===0) ? '未填金額'
+    : (r.type==='income'?'＋':'−')+fmt(r.amount).replace('NT$ ','NT$');
+  const tags = [];
+  if(r.species) tags.push('<span class="tag">'+esc(r.species)+(r.type!=='adjust'?' ×'+r.qty:'')+'</span>');
+  if(r.owner) tags.push('<span class="tag owner">'+(r.category==='開辦成本'?'投入 ':'經手 ')+ownerName(r.owner)+'</span>');
+  if(r.note) tags.push(esc(r.note));
+  return '<div class="rec">'+
+    '<div class="rec-dot '+cls+'">'+recIcon(r)+'</div>'+
+    '<div class="rec-main"><div class="rec-cat">'+esc(r.category||'庫存調整')+'</div>'+
+    '<div class="rec-meta">'+tags.join(' ')+'</div></div>'+
+    '<div class="rec-right"><div class="rec-amt '+cls+'">'+amt+'</div><div class="rec-date">'+r.date.slice(5)+'</div></div>'+
+    (withDelete?'<button class="rec-del" data-del="'+r.id+'" aria-label="刪除"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg></button>':'')+
+  '</div>';
+}
+
+/* ---- 總覽 ---- */
+function renderOverview(){
+  const m = thisMonth();
+  $('#ov-month-label').textContent = m.replace('-',' 年 ') + ' 月淨利';
+  const s = computeShare(state.records, m);
+  const net = $('#ov-net');
+  net.textContent = fmt(s.net);
+  net.className = 'net ' + (s.net>0?'pos':(s.net<0?'neg':'zero'));
+  $('#ov-income').textContent = fmt(s.income);
+  $('#ov-expense').textContent = fmt(s.expense);
+
+  const stock = computeStock(state.species, state.records);
+  let total = 0;
+  $('#ov-stock').innerHTML = Object.keys(stock).map(k=>{ total+=stock[k]; return '<span class="stat-chip">'+esc(k)+'<b>'+stock[k]+'</b></span>'; }).join('')
+    + '<span class="stat-chip" style="background:var(--brown);color:#fff;border-color:var(--brown)">合計<b style="color:#fff">'+total+' 隻</b></span>';
+
+  if(!s.distributable){
+    $('#ov-share-note').textContent = '';
+    $('#ov-share').innerHTML = '<div class="empty">本月淨利為零或虧損,暫不分潤</div>';
+  }else{
+    $('#ov-share-note').textContent = s.fallback ? '尚未填開辦成本,70% 先平分' : '';
+    $('#ov-share').innerHTML = ['A','B','C','D'].map(K =>
+      '<span class="stat-chip">'+ownerName(K)+'<b>'+fmt(s[K.toLowerCase()])+'</b></span>'
+    ).join('');
+  }
+
+  const recent = state.records.slice(0,5);
+  $('#ov-recent').innerHTML = recent.length ? recent.map(r=>recRow(r,false)).join('') : '<div class="empty">還沒有紀錄,到「記帳」新增第一筆吧</div>';
+
+  // 開辦成本進度
+  const su = startupRecords();
+  const suTot = o => su.filter(r=>r.owner===o).reduce((a,r)=>a+r.amount,0);
+  const suCnt = o => su.filter(r=>r.owner===o).length;
+  const pend = su.filter(r=>r.amount===0).length;
+  $('#ov-startup').innerHTML =
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
+    '<span class="stat-chip">Jeffery '+suCnt('D')+' 項<b>'+fmt(suTot('D'))+'</b></span>'+
+    '<span class="stat-chip">Ryan '+suCnt('C')+' 項<b>'+fmt(suTot('C'))+'</b></span>'+
+    (pend?'<span class="stat-chip" style="background:var(--gold-soft);border-color:#E8D5AC;color:#9a7327">未填金額<b style="color:#9a7327">'+pend+' 項</b></span>':'')+
+    '</div>'+
+    '<button class="btn ghost" id="btn-startup">'+(su.length?'管理開辦成本':'建立開辦成本清單')+'</button>';
+}
+
+function startupRecords(){ return state.records.filter(r=>r.type==='expense'&&r.category==='開辦成本'); }
+
+/* ---- 記帳 ---- */
+function renderEntry(){
+  const cats = state.entryType==='expense' ? EXPENSE_CATS : INCOME_CATS;
+  if(!cats.includes(state.entryCat)) state.entryCat = cats[0];
+  $('#f-cats').innerHTML = cats.map(c=>'<button type="button" class="chip'+(c===state.entryCat?' on':'')+'" data-cat="'+c+'">'+c+'</button>').join('');
+  $('#seg-expense').className = state.entryType==='expense' ? 'on-expense' : '';
+  $('#seg-income').className  = state.entryType==='income'  ? 'on-income'  : '';
+
+  const isBird = (state.entryType==='expense' && state.entryCat==='買鳥') || (state.entryType==='income' && state.entryCat==='賣鳥');
+  $('#bird-block').style.display = isBird ? '' : 'none';
+  $('#owner-field').style.display = state.entryType==='expense' ? '' : 'none';
+  if(state.entryType==='expense') $('#f-owner').value = OWNER_DEFAULT[state.entryCat] || '';
+
+  if(isBird){
+    const sel = $('#f-species');
+    const cur = sel.value;
+    sel.innerHTML = state.species.map(s=>'<option value="'+esc(s.name)+'">'+esc(s.name)+'</option>').join('');
+    if(cur && state.species.some(s=>s.name===cur)) sel.value = cur;
+    updateStockHint();
+  }
+}
+function updateStockHint(){
+  const sp = $('#f-species').value;
+  if(!sp){ $('#stock-hint').textContent=''; return; }
+  const stock = computeStock(state.species, state.records);
+  const cur = stock[sp]||0;
+  const qty = parseInt($('#f-qty').value,10)||0;
+  const selling = state.entryType==='income' && state.entryCat==='賣鳥';
+  const h = $('#stock-hint');
+  if(selling && qty>cur){ h.textContent = '目前庫存 '+cur+' 隻,不足以賣出 '+qty+' 隻'; h.className='hint warn'; }
+  else { h.textContent = '目前庫存:'+cur+' 隻'; h.className='hint'; }
+}
+
+/* ---- 記錄 ---- */
+function renderRecords(){
+  const m = $('#r-month').value || thisMonth();
+  const list = state.records.filter(r=>{
+    if(!r.date.startsWith(m)) return false;
+    if(state.recFilter==='all') return true;
+    return r.type===state.recFilter;
+  });
+  const s = computeShare(state.records, m);
+  $('#r-summary').innerHTML =
+    '<span class="stat-chip">收入<b style="color:var(--green)">'+fmt(s.income)+'</b></span>'+
+    '<span class="stat-chip">支出<b style="color:var(--rust)">'+fmt(s.expense)+'</b></span>'+
+    '<span class="stat-chip">淨利<b>'+fmt(s.net)+'</b></span>';
+  $('#r-list').innerHTML = list.length ? list.map(r=>recRow(r,true)).join('') : '<div class="empty">這個月份沒有符合條件的紀錄</div>';
+}
+
+/* ---- 庫存 ---- */
+function renderStock(){
+  const stock = computeStock(state.species, state.records);
+  const names = Object.keys(stock);
+  let total = 0; names.forEach(n=> total += stock[n]);
+  $('#s-total').textContent = '合計 '+total+' 隻';
+  $('#s-grid').innerHTML = names.map(n=>{
+    const pc = state.pairs.filter(p=>p.species===n).length;
+    return '<div class="stock-card"><div class="name">'+esc(n)+'</div><div class="qty">'+stock[n]+'<small> 隻</small></div>'+
+    '<div class="sc-btns"><button class="adj-btn" data-reg="'+esc(n)+'">名冊'+(pc?' '+pc:'')+'</button>'+
+    '<button class="adj-btn" data-adj="'+esc(n)+'">調整</button></div></div>';
+  }).join('') || '<div class="empty" style="grid-column:1/-1">尚無鳥種</div>';
+}
+
+/* ---- 分潤 ---- */
+function renderShare(){
+  const m = $('#sh-month').value || thisMonth();
+  const s = computeShare(state.records, m);
+  $('#sh-summary').innerHTML =
+    '<span class="stat-chip">收入<b style="color:var(--green)">'+fmt(s.income)+'</b></span>'+
+    '<span class="stat-chip">支出<b style="color:var(--rust)">'+fmt(s.expense)+'</b></span>'+
+    '<span class="stat-chip">淨利<b>'+fmt(s.net)+'</b></span>';
+  if(!s.distributable){
+    $('#sh-body').innerHTML = '<div class="card"><div class="empty">'+
+      (s.net<0?'本月虧損 '+fmt(-s.net)+',不進行分潤':'本月淨利為 0,不進行分潤')+'</div></div>';
+    return;
+  }
+  const pct = x => (x*100).toFixed(1).replace(/\.0$/,'')+'%';
+  const wA=10, wB=20, wC=70*s.cRatio, wD=70*s.dRatio;
+  const rows = [
+    {k:'A', amt:s.a, extra:'淨利 × 10%'},
+    {k:'B', amt:s.b, extra:'淨利 × 20%'},
+    {k:'C', amt:s.c, extra:'投入 '+fmt(s.capC)+'.占 '+(s.fallback?'50%(平分)':pct(s.cRatio))+' × 70%'},
+    {k:'D', amt:s.d, extra:'投入 '+fmt(s.capD)+'.占 '+(s.fallback?'50%(平分)':pct(s.dRatio))+' × 70%(含尾差)'}
+  ];
+  const pending = startupRecords().filter(r=>r.amount===0).length;
+  $('#sh-body').innerHTML =
+    '<div class="card">'+
+      '<div class="split-bar">'+
+        '<div class="sb-a" style="width:'+wA+'%"></div><div class="sb-b" style="width:'+wB+'%"></div>'+
+        '<div class="sb-c" style="width:'+wC+'%"></div><div class="sb-d" style="width:'+wD+'%"></div>'+
+      '</div>'+
+      '<div class="legend"><span><i class="sb-a"></i>A 10%</span><span><i class="sb-b"></i>B 20%</span>'+
+      '<span><i class="sb-c"></i>Ryan '+pct(0.7*s.cRatio)+'</span><span><i class="sb-d"></i>Jeffery '+pct(0.7*s.dRatio)+'</span></div>'+
+    '</div>'+
+    '<div class="card">'+rows.map(r=>
+      '<div class="share-row"><div class="avatar av-'+r.k.toLowerCase()+'">'+SHAREHOLDERS[r.k].letter+'</div>'+
+      '<div class="share-main"><div class="share-name">'+SHAREHOLDERS[r.k].name+'</div>'+
+      '<div class="share-desc">'+(SHAREHOLDERS[r.k].desc?SHAREHOLDERS[r.k].desc+'.':'')+r.extra+'</div></div>'+
+      '<div class="share-amt">'+fmt(r.amt)+'</div></div>'
+    ).join('')+'</div>'+
+    (s.fallback?'<div class="note-box">Ryan、Jeffery 都還沒填開辦成本金額,剩餘 70% 先平均分配。到總覽頁的「開辦成本」填好金額後,就會自動依投入比例計算。</div>':
+     (pending>0?'<div class="note-box">開辦成本還有 '+pending+' 項未填金額,投入比例之後可能變動,補填後分潤會自動重算。</div>':''));
+}
+
+/* ================= 事件 ================= */
+// 分頁切換
+$$('.tab').forEach(t => t.addEventListener('click', () => {
+  $$('.tab').forEach(x=>x.classList.remove('on'));
+  t.classList.add('on');
+  $$('.page').forEach(p=>p.classList.remove('on'));
+  $('#page-'+t.dataset.page).classList.add('on');
+  window.scrollTo(0,0);
+}));
+
+// 記帳:收支切換與分類
+$('#seg-expense').addEventListener('click', ()=>{ state.entryType='expense'; renderEntry(); });
+$('#seg-income').addEventListener('click', ()=>{ state.entryType='income'; renderEntry(); });
+$('#f-cats').addEventListener('click', e=>{
+  const c = e.target.closest('[data-cat]'); if(!c) return;
+  state.entryCat = c.dataset.cat; renderEntry();
+});
+$('#f-species').addEventListener('change', updateStockHint);
+$('#f-qty').addEventListener('input', updateStockHint);
+
+// 儲存一筆
+$('#btn-save').addEventListener('click', async ()=>{
+  const amount = Math.round(Number($('#f-amount').value));
+  const date = $('#f-date').value;
+  const isBird = (state.entryType==='expense' && state.entryCat==='買鳥') || (state.entryType==='income' && state.entryCat==='賣鳥');
+  const qty = isBird ? parseInt($('#f-qty').value,10) : 0;
+  const species = isBird ? $('#f-species').value : '';
+
+  if(!date) return toast('請選擇日期', true);
+  if(!(amount>0)) return toast('金額必須大於 0', true);
+  if(isBird){
+    if(!species) return toast('請選擇鳥種', true);
+    if(!(qty>0)) return toast('數量必須大於 0', true);
+    if(state.entryType==='income'){
+      const stock = computeStock(state.species, state.records);
+      if((stock[species]||0) < qty) return toast('庫存不足:'+species+' 目前 '+(stock[species]||0)+' 隻', true);
+    }
+  }
+  const rec = {
+    date, type: state.entryType, category: state.entryCat, amount,
+    note: $('#f-note').value.trim(),
+    owner: state.entryType==='expense' ? $('#f-owner').value : '',
+    species, qty
+  };
+  const btn = $('#btn-save'); btn.disabled = true; loading(true);
+  const res = await api.addRecord(rec);
+  btn.disabled = false;
+  if(!res.ok){ loading(false); return toast(res.error||'儲存失敗', true); }
+  await reload(false); loading(false);
+  $('#f-amount').value=''; $('#f-qty').value=''; $('#f-note').value='';
+  toast('已記一筆:'+rec.category+' '+fmt(amount));
+});
+
+// 記錄:月份、篩選、刪除
+$('#r-month').addEventListener('change', renderRecords);
+$$('.chip.filter').forEach(c => c.addEventListener('click', ()=>{
+  $$('.chip.filter').forEach(x=>x.classList.remove('on'));
+  c.classList.add('on'); state.recFilter = c.dataset.f; renderRecords();
+}));
+$('#r-list').addEventListener('click', async e=>{
+  const b = e.target.closest('[data-del]'); if(!b) return;
+  const id = b.dataset.del;
+  const r = state.records.find(x=>x.id===id); if(!r) return;
+  if(deletionMakesNegative(id)) return toast('刪除這筆會讓庫存變負數,請先處理相關的賣出紀錄', true);
+  const label = r.type==='adjust' ? '庫存調整('+r.species+')' : r.category+' '+fmt(r.amount);
+  if(!confirm('確定刪除這筆「'+label+'」?\n買鳥/賣鳥紀錄刪除後,庫存會自動回沖。')) return;
+  loading(true);
+  const res = await api.deleteRecord(id);
+  if(!res.ok){ loading(false); return toast(res.error||'刪除失敗', true); }
+  await reload(false); loading(false);
+  toast('已刪除並回沖庫存');
+});
+
+// 分潤月份
+$('#sh-month').addEventListener('change', renderShare);
+
+// 開辦成本(可自由增刪改)
+let suEdit = null; // {mode:'new', owner} 或 {mode:'edit', id}
+const penSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4L8 20H4v-4L17 3z"/></svg>';
+const trashSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg>';
+
+function suEditRow(note, amount){
+  return '<div class="su-row" style="flex-wrap:wrap;gap:8px">'+
+    '<input type="text" id="sue-note" placeholder="項目說明(例:金頭凱克 2對)" maxlength="60" value="'+esc(note)+'" style="flex:1;min-width:160px">'+
+    '<input type="number" id="sue-amt" placeholder="金額(可留空)" min="0" step="1" inputmode="numeric" value="'+(amount>0?amount:'')+'" style="width:128px">'+
+    '<div style="display:flex;gap:6px;width:100%;justify-content:flex-end">'+
+    '<button class="chip" data-sucancel="1">取消</button>'+
+    '<button class="chip" data-susave="1" style="background:var(--brown);color:#fff;border-color:var(--brown)">儲存</button></div></div>';
+}
+function renderStartupList(){
+  const su = startupRecords();
+  $('#btn-su-seed').style.display = su.length ? 'none' : '';
+  const groups = [['D','Jeffery 的投入'],['C','Ryan 的投入']];
+  $('#su-list').innerHTML = groups.map(g=>{
+    const rows = su.filter(r=>r.owner===g[0]);
+    let html = '<div class="su-group" style="display:flex;align-items:center;justify-content:space-between">'+g[1]+
+      '<button class="chip" data-suadd="'+g[0]+'" style="font-size:11px;padding:3px 10px">＋ 項目</button></div>';
+    html += rows.map(r=>{
+      if(suEdit && suEdit.mode==='edit' && suEdit.id===r.id) return suEditRow(r.note, r.amount);
+      return '<div class="su-row"><div class="su-label">'+esc(r.note)+'<small>'+r.date.slice(0,7)+'</small></div>'+
+        '<span class="su-done" style="'+(r.amount>0?'':'color:var(--ink-soft);font-family:var(--sans);font-weight:400')+'">'+(r.amount>0?fmt(r.amount):'未填')+'</span>'+
+        '<button class="rec-del" data-suedit="'+r.id+'" aria-label="編輯">'+penSvg+'</button>'+
+        '<button class="rec-del" data-sudel="'+r.id+'" aria-label="刪除">'+trashSvg+'</button></div>';
+    }).join('');
+    if(suEdit && suEdit.mode==='new' && suEdit.owner===g[0]) html += suEditRow('','');
+    else if(!rows.length) html += '<div class="hint" style="padding:6px 0">尚無項目</div>';
+    return html;
+  }).join('');
+}
+$('#ov-startup').addEventListener('click', e=>{
+  if(!e.target.closest('#btn-startup')) return;
+  suEdit = null;
+  const su = startupRecords();
+  $('#su-month').value = su.length ? su[su.length-1].date.slice(0,7) : prevMonth();
+  renderStartupList();
+  $('#startupModal').classList.add('show');
+});
+$('#btn-close-startup').addEventListener('click', ()=>{ suEdit=null; $('#startupModal').classList.remove('show'); });
+$('#btn-su-seed').addEventListener('click', async ()=>{
+  const m = $('#su-month').value;
+  if(!m) return toast('請先選擇開辦月', true);
+  loading(true);
+  for(const it of DEFAULT_STARTUP_ITEMS){
+    const res = await api.addRecord({date:m+'-01', type:'expense', category:'開辦成本', amount:0, note:it.label, owner:it.owner, species:'', qty:0});
+    if(!res.ok){ loading(false); await reload(false); renderStartupList(); return toast(res.error||'帶入失敗', true); }
+  }
+  await reload(false); loading(false);
+  renderStartupList();
+  toast('已帶入 '+DEFAULT_STARTUP_ITEMS.length+' 項,點鉛筆即可修改說明與金額');
+});
+$('#su-list').addEventListener('click', async e=>{
+  const add = e.target.closest('[data-suadd]');
+  if(add){ suEdit={mode:'new', owner:add.dataset.suadd}; renderStartupList(); $('#sue-note')&&$('#sue-note').focus(); return; }
+  const ed = e.target.closest('[data-suedit]');
+  if(ed){ suEdit={mode:'edit', id:ed.dataset.suedit}; renderStartupList(); return; }
+  if(e.target.closest('[data-sucancel]')){ suEdit=null; renderStartupList(); return; }
+  const del = e.target.closest('[data-sudel]');
+  if(del){
+    const r = state.records.find(x=>x.id===del.dataset.sudel); if(!r) return;
+    if(!confirm('確定刪除「'+r.note+'」?')) return;
+    loading(true);
+    const res = await api.deleteRecord(r.id);
+    if(!res.ok){ loading(false); return toast(res.error||'刪除失敗', true); }
+    await reload(false); loading(false);
+    renderStartupList();
+    toast('已刪除');
+    return;
+  }
+  if(e.target.closest('[data-susave]')){
+    const note = $('#sue-note').value.trim();
+    const amtVal = $('#sue-amt').value.trim();
+    const amount = amtVal ? Math.round(Number(amtVal)) : 0;
+    if(!note) return toast('請輸入項目說明', true);
+    if(amtVal && !(amount>0)) return toast('金額必須大於 0,不確定就先留空', true);
+    loading(true);
+    let res;
+    if(suEdit.mode==='edit'){
+      res = await api.updateRecord({id:suEdit.id, note, amount});
+    }else{
+      const m = $('#su-month').value;
+      if(!m){ loading(false); return toast('請先選擇開辦月', true); }
+      res = await api.addRecord({date:m+'-01', type:'expense', category:'開辦成本', amount, note, owner:suEdit.owner, species:'', qty:0});
+    }
+    if(!res.ok){ loading(false); return toast(res.error||'儲存失敗', true); }
+    suEdit = null;
+    await reload(false); loading(false);
+    renderStartupList();
+    toast('已儲存'+(amount>0?'':',金額之後再補'));
+  }
+});
+
+// 庫存調整
+let adjSpecies = '';
+$('#s-grid').addEventListener('click', e=>{
+  const b = e.target.closest('[data-adj]'); if(!b) return;
+  adjSpecies = b.dataset.adj;
+  $('#adj-title').textContent = '調整庫存:'+adjSpecies;
+  $('#adj-qty').value=''; $('#adj-note').value=''; $('#adj-dir').value='1';
+  $('#adj-date').value = todayStr();
+  $('#adjustModal').classList.add('show');
+});
+$('#btn-close-adjust').addEventListener('click', ()=> $('#adjustModal').classList.remove('show'));
+$('#btn-adj-save').addEventListener('click', async ()=>{
+  const n = parseInt($('#adj-qty').value,10);
+  const dir = Number($('#adj-dir').value);
+  const note = $('#adj-note').value.trim();
+  const date = $('#adj-date').value;
+  if(!(n>0)) return toast('數量必須大於 0', true);
+  if(!note) return toast('請填寫調整原因,方便日後對帳', true);
+  if(!date) return toast('請選擇日期', true);
+  const qty = n*dir;
+  const stock = computeStock(state.species, state.records);
+  if((stock[adjSpecies]||0)+qty < 0) return toast('調整後庫存不可為負(目前 '+(stock[adjSpecies]||0)+' 隻)', true);
+  loading(true);
+  const res = await api.addRecord({date, type:'adjust', category:'庫存調整', amount:0, note, owner:'', species:adjSpecies, qty});
+  if(!res.ok){ loading(false); return toast(res.error||'儲存失敗', true); }
+  await reload(false); loading(false);
+  $('#adjustModal').classList.remove('show');
+  toast(adjSpecies+' '+(qty>0?'＋':'−')+Math.abs(qty)+' 隻,已留下調整紀錄');
+});
+
+/* ---- 鳥籍名冊 ---- */
+let regSpecies = '', curPairId = '', editPairId = '';
+const YEAR = new Date().getFullYear();
+const ageTxt = y => y ? '('+y+'.'+Math.max(0,YEAR-y)+'歲)' : '';
+const statusCls = st => (st==='已售出'||st==='死亡') ? 'gone' : (st==='孵蛋中'||st==='育雛中') ? 'breed' : (st==='配對中') ? '' : 'calm';
+const pairEvents = id => state.events.filter(e=>e.pairId===id).sort((a,b)=> b.date===a.date ? (b.createdAt>a.createdAt?1:-1) : (b.date>a.date?1:-1));
+
+function renderRegistry(){
+  const list = state.pairs.filter(p=>p.species===regSpecies);
+  const stock = computeStock(state.species, state.records);
+  const onSite = list.filter(p=>p.status!=='已售出'&&p.status!=='死亡').reduce((a,p)=>a+(Number(p.qty)||0),0);
+  $('#reg-title').textContent = regSpecies+' 名冊';
+  $('#reg-hint').textContent = '名冊在園 '+onSite+' 隻.帳面庫存 '+(stock[regSpecies]||0)+' 隻(未上腳環的幼鳥可以先不建檔,兩個數字不必相等)';
+  $('#reg-list').innerHTML = list.length ? '<div class="card">'+list.map(p=>{
+    const evs = pairEvents(p.id);
+    const last = evs[0];
+    const parts = [];
+    if(p.maleRing||p.maleBirth) parts.push('公 '+esc(p.maleRing||'未標')+ageTxt(p.maleBirth));
+    if(p.femaleRing||p.femaleBirth) parts.push('母 '+esc(p.femaleRing||'未標')+ageTxt(p.femaleBirth));
+    parts.push((Number(p.qty)||0)+' 隻');
+    return '<div class="pair-card" data-pd="'+p.id+'">'+
+      '<div class="pair-head"><div class="pair-name">'+esc(p.name)+'</div><span class="status-tag '+statusCls(p.status)+'">'+esc(p.status)+'</span></div>'+
+      '<div class="pair-meta">'+parts.join('.')+'</div>'+
+      (last?'<div class="pair-meta">最近:'+last.date.slice(5)+' '+esc(last.type)+(last.qty?' '+last.qty:'')+(last.note?'.'+esc(last.note):'')+'</div>':'')+
+      (p.note?'<div class="pair-meta">'+esc(p.note)+'</div>':'')+
+    '</div>';
+  }).join('')+'</div>' : '<div class="card"><div class="empty">還沒有建檔,點下方按鈕新增第一組</div></div>';
+}
+
+function renderPairDetail(){
+  const p = state.pairs.find(x=>x.id===curPairId);
+  if(!p){ $('#pairDetailModal').classList.remove('show'); return; }
+  $('#pd-title').textContent = p.name;
+  const g = [];
+  g.push('<span class="lbl">鳥種</span><b>'+esc(p.species)+'</b>');
+  g.push('<span class="lbl">狀態</span><span class="status-tag '+statusCls(p.status)+'">'+esc(p.status)+'</span>');
+  g.push('<span class="lbl">公鳥</span><b>'+esc(p.maleRing||'未標')+' '+ageTxt(p.maleBirth)+'</b>');
+  g.push('<span class="lbl">母鳥</span><b>'+esc(p.femaleRing||'未標')+' '+ageTxt(p.femaleBirth)+'</b>');
+  g.push('<span class="lbl">隻數</span><b>'+(Number(p.qty)||0)+' 隻</b>');
+  if(p.note) g.push('<span class="lbl">備註</span><b>'+esc(p.note)+'</b>');
+  $('#pd-info').innerHTML = '<div class="detail-grid">'+g.map(x=>'<div>'+x.replace('</span><','</span> <')+'</div>').join('')+'</div>';
+  const evs = pairEvents(p.id);
+  $('#pd-events').innerHTML = evs.length ? evs.map(e=>
+    '<div class="ev-row"><span class="ev-date">'+e.date.slice(5)+'</span>'+
+    '<div class="ev-main"><span class="ev-type">'+esc(e.type)+(e.qty?' ×'+e.qty:'')+'</span>'+(e.note?'<span style="color:var(--ink-soft)"> '+esc(e.note)+'</span>':'')+'</div>'+
+    '<button class="rec-del" data-evdel="'+e.id+'" aria-label="刪除"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13"/></svg></button></div>'
+  ).join('') : '<div class="empty" style="padding:14px 0">還沒有紀錄</div>';
+  updateEvSync();
+}
+
+function updateEvSync(){
+  const t = $('#ev-type').value;
+  const row = $('#ev-sync-row');
+  if(t==='出殼'){ row.style.display='flex'; $('#ev-sync-label').textContent='同步增加庫存(出殼幾隻就加幾隻)'; }
+  else if(t==='死亡'){ row.style.display='flex'; $('#ev-sync-label').textContent='同步扣減庫存'; }
+  else row.style.display='none';
+}
+$('#ev-type').addEventListener('change', updateEvSync);
+
+$('#s-grid').addEventListener('click', e=>{
+  const r = e.target.closest('[data-reg]');
+  if(r){ regSpecies = r.dataset.reg; renderRegistry(); $('#regModal').classList.add('show'); return; }
+});
+$('#btn-close-reg').addEventListener('click', ()=> $('#regModal').classList.remove('show'));
+$('#reg-list').addEventListener('click', e=>{
+  const c = e.target.closest('[data-pd]'); if(!c) return;
+  curPairId = c.dataset.pd;
+  $('#ev-date').value = todayStr(); $('#ev-qty').value=''; $('#ev-note').value=''; $('#ev-type').value='產蛋';
+  renderPairDetail();
+  $('#pairDetailModal').classList.add('show');
+});
+$('#btn-close-pd').addEventListener('click', ()=> $('#pairDetailModal').classList.remove('show'));
+
+// 新增/編輯配對
+function openPairForm(p){
+  editPairId = p ? p.id : '';
+  $('#pair-form-title').textContent = p ? '編輯:'+p.name : '新增配對／單鳥('+regSpecies+')';
+  $('#pf-name').value = p?p.name:'';
+  $('#pf-qty').value = p?(p.qty||2):2;
+  $('#pf-mring').value = p?(p.maleRing||''):'';
+  $('#pf-mbirth').value = p&&p.maleBirth?p.maleBirth:'';
+  $('#pf-fring').value = p?(p.femaleRing||''):'';
+  $('#pf-fbirth').value = p&&p.femaleBirth?p.femaleBirth:'';
+  $('#pf-status').value = p?p.status:'配對中';
+  $('#pf-note').value = p?(p.note||''):'';
+  $('#pairModal').classList.add('show');
+}
+$('#btn-add-pair').addEventListener('click', ()=> openPairForm(null));
+$('#btn-pair-edit').addEventListener('click', ()=>{
+  const p = state.pairs.find(x=>x.id===curPairId);
+  if(p) openPairForm(p);
+});
+$('#btn-close-pair').addEventListener('click', ()=> $('#pairModal').classList.remove('show'));
+$('#btn-pair-save').addEventListener('click', async ()=>{
+  const name = $('#pf-name').value.trim();
+  const qty = parseInt($('#pf-qty').value,10);
+  if(!name) return toast('請輸入名稱或編號', true);
+  if(!(qty>0)) return toast('隻數必須大於 0', true);
+  const mb = $('#pf-mbirth').value ? parseInt($('#pf-mbirth').value,10) : '';
+  const fb = $('#pf-fbirth').value ? parseInt($('#pf-fbirth').value,10) : '';
+  if((mb && (mb<1990||mb>YEAR)) || (fb && (fb<1990||fb>YEAR))) return toast('出生年看起來不對,請再確認', true);
+  const pair = {
+    species: regSpecies, name, qty,
+    maleRing: $('#pf-mring').value.trim(), femaleRing: $('#pf-fring').value.trim(),
+    maleBirth: mb, femaleBirth: fb,
+    status: $('#pf-status').value, note: $('#pf-note').value.trim()
+  };
+  loading(true);
+  let res;
+  if(editPairId){ pair.id = editPairId; res = await api.updatePair(pair); }
+  else res = await api.addPair(pair);
+  if(!res.ok){ loading(false); return toast(res.error||'儲存失敗', true); }
+  await reload(false); loading(false);
+  $('#pairModal').classList.remove('show');
+  renderRegistry();
+  if(editPairId && $('#pairDetailModal').classList.contains('show')) renderPairDetail();
+  toast(editPairId?'已更新資料':'已建檔:'+name);
+});
+
+// 刪除配對(連同紀錄)
+$('#btn-pair-del').addEventListener('click', async ()=>{
+  const p = state.pairs.find(x=>x.id===curPairId); if(!p) return;
+  if(!confirm('確定刪除「'+p.name+'」?\n底下的繁殖／健康紀錄會一併刪除,但不會動到帳面庫存。')) return;
+  loading(true);
+  const res = await api.deletePair(curPairId);
+  if(!res.ok){ loading(false); return toast(res.error||'刪除失敗', true); }
+  await reload(false); loading(false);
+  $('#pairDetailModal').classList.remove('show');
+  renderRegistry();
+  toast('已刪除');
+});
+
+// 新增繁殖/健康紀錄
+$('#btn-ev-save').addEventListener('click', async ()=>{
+  const p = state.pairs.find(x=>x.id===curPairId); if(!p) return;
+  const type = $('#ev-type').value;
+  const date = $('#ev-date').value;
+  const qty = $('#ev-qty').value ? parseInt($('#ev-qty').value,10) : 0;
+  const note = $('#ev-note').value.trim();
+  if(!date) return toast('請選擇日期', true);
+  if($('#ev-qty').value && !(qty>0)) return toast('數量必須大於 0', true);
+  const sync = $('#ev-sync-row').style.display!=='none' && $('#ev-sync').checked;
+  if(sync && !(qty>0)) return toast('要同步庫存就必須填數量', true);
+  if(sync && type==='死亡'){
+    const stock = computeStock(state.species, state.records);
+    if((stock[p.species]||0) - qty < 0) return toast('扣減後庫存會變負數(目前 '+(stock[p.species]||0)+' 隻)', true);
+  }
+  loading(true);
+  const res = await api.addEvent({pairId:curPairId, date, type, qty, note});
+  if(!res.ok){ loading(false); return toast(res.error||'儲存失敗', true); }
+  if(sync){
+    const adjNote = (type==='出殼'?'出雛:':'死亡:')+p.name+(note?'.'+note:'');
+    const res2 = await api.addRecord({date, type:'adjust', category:'庫存調整', amount:0, note:adjNote, owner:'', species:p.species, qty: type==='出殼'?qty:-qty});
+    if(!res2.ok){ await reload(false); loading(false); renderPairDetail(); return toast('紀錄已存,但庫存同步失敗:'+(res2.error||''), true); }
+  }
+  await reload(false); loading(false);
+  $('#ev-qty').value=''; $('#ev-note').value='';
+  renderPairDetail(); renderRegistry();
+  toast('已新增'+type+'紀錄'+(sync?',庫存已同步':''));
+});
+
+// 刪除繁殖/健康紀錄(不回沖庫存,避免誤刪造成連動)
+$('#pd-events').addEventListener('click', async e=>{
+  const b = e.target.closest('[data-evdel]'); if(!b) return;
+  if(!confirm('確定刪除這筆紀錄?\n若先前有同步過庫存,請另外到庫存頁手動調整回來。')) return;
+  loading(true);
+  const res = await api.deleteEvent(b.dataset.evdel);
+  if(!res.ok){ loading(false); return toast(res.error||'刪除失敗', true); }
+  await reload(false); loading(false);
+  renderPairDetail(); renderRegistry();
+  toast('已刪除紀錄');
+});
+
+// 新增鳥種
+$('#btn-add-species').addEventListener('click', ()=>{
+  $('#sp-name').value=''; $('#sp-qty').value='0';
+  $('#speciesModal').classList.add('show');
+});
+$('#btn-close-species').addEventListener('click', ()=> $('#speciesModal').classList.remove('show'));
+$('#btn-sp-save').addEventListener('click', async ()=>{
+  const name = $('#sp-name').value.trim();
+  const qty = parseInt($('#sp-qty').value,10);
+  if(!name) return toast('請輸入鳥種名稱', true);
+  if(!(qty>=0)) return toast('數量不可為負', true);
+  if(state.species.some(s=>s.name===name)) return toast('這個鳥種已存在', true);
+  loading(true);
+  const res = await api.addSpecies(name, qty);
+  if(!res.ok){ loading(false); return toast(res.error||'新增失敗', true); }
+  await reload(false); loading(false);
+  $('#speciesModal').classList.remove('show');
+  toast('已新增鳥種:'+name);
+});
+
+// 設定
+$('#btnSettings').addEventListener('click', ()=>{
+  $('#set-url').value = state.url;
+  $('#set-status').textContent = state.mode==='live' ? '目前已連線到 Google Sheets。' :
+    (state.url ? '已填網址但尚未成功連線。' : '尚未設定,目前為示範模式。');
+  $('#settingsModal').classList.add('show');
+});
+$('#btn-close-settings').addEventListener('click', ()=> $('#settingsModal').classList.remove('show'));
+$('#btn-save-url').addEventListener('click', async ()=>{
+  const url = $('#set-url').value.trim();
+  lsSet('birdapp_url', url);
+  state.url = url;
+  if(!url){ state.mode='demo'; $('#settingsModal').classList.remove('show'); await reload(true); toast('已切回示範模式'); return; }
+  state.mode='live';
+  loading(true);
+  const data = await api.getAll();
+  loading(false);
+  if(!data.ok){ state.mode='error'; updateBadge(); $('#set-status').textContent = data.error||'連線失敗'; return toast(data.error||'連線失敗', true); }
+  state.records = (data.records||[]).sort((x,y)=> y.date===x.date ? (y.createdAt>x.createdAt?1:-1) : (y.date>x.date?1:-1));
+  state.species = data.species||[];
+  state.pairs = data.pairs||[];
+  state.events = data.events||[];
+  renderAll();
+  $('#settingsModal').classList.remove('show');
+  toast('已連線,資料將即時同步到 Google Sheets');
+});
+$$('.modal-mask').forEach(m => m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('show'); }));
+
+/* ================= 啟動 ================= */
+(async function init(){
+  $('#f-date').value = todayStr();
+  $('#r-month').value = thisMonth();
+  $('#sh-month').value = thisMonth();
+  if(state.url){ state.mode='live'; }
+  updateBadge();
+  await reload(true);
+})();
+</script>
+</body>
+</html>
