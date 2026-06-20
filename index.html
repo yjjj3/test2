@@ -200,6 +200,22 @@ select{
 .su-label small{display:block;color:var(--ink-soft);font-size:11.5px;line-height:1.4}
 .su-row input{width:118px;padding:8px 10px;flex-shrink:0}
 .su-done{font-family:var(--serif);font-weight:700;color:var(--brown-deep);font-size:14px;flex-shrink:0}
+.su-item{padding:11px 0;border-bottom:1px solid var(--line)}
+.su-item:last-child{border-bottom:none}
+.su-item-top{display:flex;align-items:center;gap:10px}
+.su-item-name{flex:1;min-width:0;font-size:14px;font-weight:600;word-break:break-word}
+.su-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.su-chip{font-size:11.5px;padding:2px 9px;border-radius:99px;background:var(--card-soft);border:1px solid var(--line);color:var(--ink-soft);white-space:nowrap}
+.su-chip.qty{color:var(--brown-deep);background:#fff;font-weight:600}
+.su-chip.memo{background:var(--gold-soft);border-color:#E8D5AC;color:#9a7327}
+.su-ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.su-ov-cell{display:flex;gap:8px;align-items:flex-start}
+.su-ov-cell i{width:10px;height:10px;border-radius:3px;flex-shrink:0;margin-top:4px}
+.su-ov-name{font-size:12px;color:var(--ink-soft)}
+.su-ov-amt{font-family:var(--serif);font-size:17px;font-weight:700;color:var(--brown-deep);line-height:1.25}
+.su-ov-sub{font-size:11.5px;color:var(--ink-soft)}
+.su-ov-warn{margin-top:12px;font-size:12px;color:#9a7327;background:var(--gold-soft);border:1px solid #E8D5AC;border-radius:9px;padding:8px 11px}
+.su-ov-note{margin-top:12px;font-size:12px;color:var(--ink-soft);background:var(--card-soft);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
 /* ---------- 底部導覽 ---------- */
 .tabbar{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
@@ -936,18 +952,36 @@ function renderOverview(){
   const recent = state.records.slice(0,5);
   $('#ov-recent').innerHTML = recent.length ? recent.map(r=>recRow(r,false)).join('') : '<div class="empty">還沒有紀錄,到「記帳」新增第一筆吧</div>';
 
-  // 開辦成本進度
+  // 開辦成本概況
   const su = startupRecords();
   const suTot = o => su.filter(r=>r.owner===o).reduce((a,r)=>a+r.amount,0);
   const suCnt = o => su.filter(r=>r.owner===o).length;
   const pend = su.filter(r=>r.amount===0).length;
-  $('#ov-startup').innerHTML =
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'+
-    '<span class="stat-chip">Jeffery '+suCnt('D')+' 項<b>'+fmt(suTot('D'))+'</b></span>'+
-    '<span class="stat-chip">Ryan '+suCnt('C')+' 項<b>'+fmt(suTot('C'))+'</b></span>'+
-    (pend?'<span class="stat-chip" style="background:var(--gold-soft);border-color:#E8D5AC;color:#9a7327">未填金額<b style="color:#9a7327">'+pend+' 項</b></span>':'')+
-    '</div>'+
-    '<button class="btn ghost" id="btn-startup">'+(su.length?'管理開辦成本':'建立開辦成本清單')+'</button>';
+  const jT = suTot('D'), rT = suTot('C'), tot = jT + rT;
+  const jPct = tot>0 ? Math.round(jT/tot*100) : 50;
+  const rPct = 100 - jPct;
+  if(!su.length){
+    $('#ov-startup').innerHTML = '<div class="empty" style="padding:14px 0 18px">尚未建立開辦成本</div>'+
+      '<button class="btn ghost" id="btn-startup">建立開辦成本清單</button>';
+  }else{
+    $('#ov-startup').innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">'+
+        '<span style="font-size:12px;color:var(--ink-soft)">投入總額</span>'+
+        '<span style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--brown-deep)">'+fmt(tot)+'</span>'+
+      '</div>'+
+      (tot>0?'<div class="split-bar" style="margin:0 0 6px"><div class="sb-d" style="flex:'+jT+'"></div><div class="sb-c" style="flex:'+rT+'"></div></div>':'')+
+      '<div class="su-ov-grid">'+
+        '<div class="su-ov-cell"><i class="sb-d"></i><div><div class="su-ov-name">Jeffery</div>'+
+          '<div class="su-ov-amt">'+fmt(jT)+'</div>'+
+          '<div class="su-ov-sub">'+suCnt('D')+' 筆'+(tot>0?'.占 '+jPct+'%':'')+'</div></div></div>'+
+        '<div class="su-ov-cell"><i class="sb-c"></i><div><div class="su-ov-name">Ryan</div>'+
+          '<div class="su-ov-amt">'+fmt(rT)+'</div>'+
+          '<div class="su-ov-sub">'+suCnt('C')+' 筆'+(tot>0?'.占 '+rPct+'%':'')+'</div></div></div>'+
+      '</div>'+
+      (pend?'<div class="su-ov-warn">還有 '+pend+' 筆未填金額,投入比例之後可能變動</div>':
+            '<div class="su-ov-note">這個比例就是 Ryan、Jeffery 每月分潤 70% 的分配依據</div>')+
+      '<button class="btn ghost" id="btn-startup" style="margin-top:12px">管理開辦成本</button>';
+  }
 }
 
 function startupRecords(){ return state.records.filter(r=>r.type==='expense'&&r.category==='開辦成本'); }
@@ -1168,12 +1202,21 @@ function renderStartupList(){
       '<button class="chip" data-suadd="'+g[0]+'" style="font-size:11px;padding:3px 10px">＋ 批次</button></div>';
     html += rows.map(r=>{
       const d = suParse(r.note);
-      const summary = suSummary(d);
-      return '<div class="su-row" style="align-items:flex-start"><div class="su-label">'+esc(d.item||'(未命名)')+
-        (summary?'<small>'+esc(summary)+'</small>':'<small>'+r.date.slice(0,7)+'</small>')+'</div>'+
-        '<span class="su-done" style="'+(r.amount>0?'':'color:var(--ink-soft);font-family:var(--sans);font-weight:400')+'">'+(r.amount>0?fmt(r.amount):'未填')+'</span>'+
-        '<button class="rec-del" data-suedit="'+r.id+'" aria-label="編輯">'+penSvg+'</button>'+
-        '<button class="rec-del" data-sudel="'+r.id+'" aria-label="刪除">'+trashSvg+'</button></div>';
+      const chips = [];
+      if(d.qty) chips.push('<span class="su-chip qty">'+esc(d.qty)+'</span>');
+      if(d.seller) chips.push('<span class="su-chip">向 '+esc(d.seller)+'</span>');
+      if(d.date) chips.push('<span class="su-chip">'+mmdd(d.date)+'</span>');
+      if(d.ring) chips.push('<span class="su-chip">環 '+esc(d.ring)+'</span>');
+      if(d.note) chips.push('<span class="su-chip memo">'+esc(d.note)+'</span>');
+      return '<div class="su-item">'+
+        '<div class="su-item-top">'+
+          '<div class="su-item-name">'+esc(d.item||'(未命名)')+'</div>'+
+          '<span class="su-done" style="'+(r.amount>0?'':'color:var(--ink-soft);font-family:var(--sans);font-weight:400')+'">'+(r.amount>0?fmt(r.amount):'未填')+'</span>'+
+          '<button class="rec-del" data-suedit="'+r.id+'" aria-label="編輯">'+penSvg+'</button>'+
+          '<button class="rec-del" data-sudel="'+r.id+'" aria-label="刪除">'+trashSvg+'</button>'+
+        '</div>'+
+        (chips.length?'<div class="su-chips">'+chips.join('')+'</div>':'<div class="su-chips"><span class="su-chip" style="color:var(--ink-soft)">點鉛筆補上數量、賣家等細節</span></div>')+
+      '</div>';
     }).join('');
     if(!rows.length) html += '<div class="hint" style="padding:6px 0">尚無批次</div>';
     return html;
@@ -1207,10 +1250,16 @@ function openSuForm(rec){
   if(rec){
     suFormId = rec.id; suFormOwner = rec.owner;
     const d = suParse(rec.note);
+    let item = d.item, qty = d.qty;
+    // 舊資料數量常黏在名稱裡(例「香吉士 8對(16隻)」「小不銹鋼籠 x8」),qty 欄空的話自動拆出來
+    if(!qty){
+      let m = item.match(/^(.+?)[\s　]+([\d]+\s*[對隻個]?(?:[（(][^）)]*[）)])?|[xX×]\s*\d+)\s*$/);
+      if(m){ item = m[1].trim(); qty = m[2].trim(); }
+    }
     $('#suf-title').textContent = '編輯批次';
     $('#suf-owner').value = rec.owner;
-    $('#suf-item').value = d.item; $('#suf-seller').value = d.seller;
-    $('#suf-qty').value = d.qty; $('#suf-amt').value = rec.amount>0?rec.amount:'';
+    $('#suf-item').value = item; $('#suf-seller').value = d.seller;
+    $('#suf-qty').value = qty; $('#suf-amt').value = rec.amount>0?rec.amount:'';
     $('#suf-date').value = /^\d{4}-\d{2}-\d{2}$/.test(d.date)?d.date:'';
     $('#suf-ring').value = d.ring; $('#suf-note').value = d.note;
   }else{
